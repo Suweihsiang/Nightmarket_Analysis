@@ -1,0 +1,147 @@
+services:
+  namenode:
+    image: hadoop-spark-base
+    container_name: namenode
+    ports:
+      - "9870:9870"    # HDFS Web UI
+      - "9000:9000"    # HDFS RPC
+    volumes:
+      - ./hadoop_namenode:/opt/hadoop_data/name
+    networks:
+      - hadoop_net
+    environment:
+      - NODE_TYPE=namenode
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    healthcheck:
+      test: ["CMD", "hdfs", "dfsadmin", "-report"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+  datanode1:
+    image: hadoop-spark-base
+    container_name: datanode1
+    networks:
+      - hadoop_net
+    volumes:
+      - ./hadoop_datanode1:/opt/hadoop_data/data
+    environment:
+      - NODE_TYPE=datanode
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    depends_on:
+      namenode:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "hdfs", "dfsadmin", "-report"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+  datanode2:
+    image: hadoop-spark-base
+    container_name: datanode2
+    networks:
+      - hadoop_net
+    volumes:
+      - ./hadoop_datanode2:/opt/hadoop_data/data
+    environment:
+      - NODE_TYPE=datanode
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    depends_on:
+      namenode:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "hdfs", "dfsadmin", "-report"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+  
+  spark-master:
+    image: hadoop-spark-base
+    container_name: spark-master
+    volumes:
+      - ..:/workspace
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    networks:
+      - hadoop_net
+    environment:
+      - NODE_TYPE=spark-master
+      - SPARK_MODE=master
+    depends_on:
+      namenode:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "spark-submit", "--master", "spark://spark-master:7077", "--version"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+  spark-worker1:
+    image: hadoop-spark-base
+    container_name: spark-worker1
+    networks:
+      - hadoop_net
+    environment:
+      - NODE_TYPE=spark-worker
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      spark-master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "spark-submit", "--master", "spark://spark-master:7077", "--version"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+  
+  spark-worker2:
+    image: hadoop-spark-base
+    container_name: spark-worker2
+    networks:
+      - hadoop_net
+    environment:
+      - NODE_TYPE=spark-worker
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      spark-master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "spark-submit", "--master", "spark://spark-master:7077", "--version"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+  
+  jupyter:
+    image: hadoop-spark-base
+    container_name: jupyter
+    ports:
+      - "8888:8888"
+    networks:
+      - hadoop_net
+    volumes:
+      - ..:/workspace
+    environment:
+      - NODE_TYPE=jupyter
+    depends_on:
+      namenode:
+        condition: service_healthy
+      spark-master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+networks:
+  hadoop_net:

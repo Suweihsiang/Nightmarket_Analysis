@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "nightmarket-project"
+version = "0.1.0"
+description = "Package for Nightmarket Project"
+authors = ["Su Wei-Hsiang"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+pandas = "^2.2.3"
+py-dotenv = "^0.1"
+pyspark = "3.5.5"
+scikit-learn = "^1.6.1"
+ipykernel = "^6.29.5"
+jupyter = "^1.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
