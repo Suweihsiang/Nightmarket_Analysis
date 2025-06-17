@@ -1,0 +1,25 @@
+[project]
+name = "for-comment-tokenzier"
+version = "0.1.0"
+description = "Use these packages for tokenized all comments"
+authors = [
+    {name = "Suweihsiang",email = "scottjasontaiwan@yahoo.com.tw"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "torch (>=2.7.1,<3.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)",
+    "transformers (>=4.52.4,<5.0.0)",
+    "pandas (>=2.3.0,<3.0.0)",
+    "numpy (>=2.2.6,<3.0.0)",
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
