@@ -1,0 +1,6 @@
+hadoop_datanode1
+hadoop_datanode2
+hadoop_namenode
+.ipynb_checkpoints
+output
+*gz
